@@ -1,11 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Landen App - REST Countries API</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+    <header>
+        <h1>🌍 Landen Informatie</h1>
+        <p>Zoek, filter en sorteer landen van de wereld</p>
+    </header>
+
+    <main>
+        <!-- Interactieve bedieningselementen -->
+        <section class="controls">
+            <input type="text" id="search" placeholder="Zoek op landnaam..." autocomplete="off">
+            
+            <select id="region-filter">
+                <option value="">Alle regio's</option>
+                <!-- Opties worden dynamisch ingevuld -->
+            </select>
+
+            <button id="sort-population">Sorteer op bevolking ⬇️</button>
+        </section>
+
+        <!-- Laadindicator en foutmelding -->
+        <div id="loading" class="loading" style="display: none;">Landen laden...</div>
+        <div id="error" class="error" style="display: none;"></div>
+
+        <!-- Grid met landenkaarten -->
+        <div id="countries-grid" class="countries-grid"></div>
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>

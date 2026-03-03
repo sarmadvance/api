@@ -1,0 +1,170 @@
+/* Algemene stijlen */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+}
+
+header p {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+}
+
+/* Bedieningspaneel */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+#search {
+    padding: 10px 15px;
+    width: 250px;
+    border: 2px solid #3498db;
+    border-radius: 25px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+#search:focus {
+    border-color: #2980b9;
+}
+
+#region-filter {
+    padding: 10px 15px;
+    border: 2px solid #3498db;
+    border-radius: 25px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+    outline: none;
+}
+
+#sort-population {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#sort-population:hover {
+    background-color: #2980b9;
+}
+
+/* Laadindicator en foutmelding */
+.loading, .error {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.loading {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Grid voor landenkaarten */
+.countries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Individuele landkaart */
+.country-card {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.country-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.country-flag {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-bottom: 3px solid #3498db;
+}
+
+.country-info {
+    padding: 20px;
+    flex: 1;
+}
+
+.country-info h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.country-info p {
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.country-info strong {
+    color: #3498db;
+}
+
+/* Responsive aanpassingen */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #search, #region-filter, #sort-population {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .countries-grid {
+        grid-template-columns: 1fr;
+    }
+}
