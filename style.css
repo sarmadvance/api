@@ -20,12 +20,12 @@ header {
 
 header h1 {
     font-size: 2.5rem;
-    color: #2c3e50;
+    color: #e23636; /* Marvel-rood */
 }
 
 header p {
     font-size: 1.2rem;
-    color: #7f8c8d;
+    color: #555;
 }
 
 /* Bedieningspaneel */
@@ -40,7 +40,7 @@ header p {
 #search {
     padding: 10px 15px;
     width: 250px;
-    border: 2px solid #3498db;
+    border: 2px solid #e23636;
     border-radius: 25px;
     font-size: 1rem;
     outline: none;
@@ -48,12 +48,12 @@ header p {
 }
 
 #search:focus {
-    border-color: #2980b9;
+    border-color: #b22222;
 }
 
-#region-filter {
+#genre-filter {
     padding: 10px 15px;
-    border: 2px solid #3498db;
+    border: 2px solid #e23636;
     border-radius: 25px;
     font-size: 1rem;
     background-color: white;
@@ -61,9 +61,9 @@ header p {
     outline: none;
 }
 
-#sort-population {
+#sort-year {
     padding: 10px 20px;
-    background-color: #3498db;
+    background-color: #e23636;
     color: white;
     border: none;
     border-radius: 25px;
@@ -72,8 +72,8 @@ header p {
     transition: background-color 0.3s;
 }
 
-#sort-population:hover {
-    background-color: #2980b9;
+#sort-year:hover {
+    background-color: #b22222;
 }
 
 /* Laadindicator en foutmelding */
@@ -96,8 +96,8 @@ header p {
     border: 1px solid #f5c6cb;
 }
 
-/* Grid voor landenkaarten */
-.countries-grid {
+/* Grid voor filmkaarten */
+.movies-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 25px;
@@ -105,8 +105,8 @@ header p {
     margin: 0 auto;
 }
 
-/* Individuele landkaart */
-.country-card {
+/* Individuele filmkaart */
+.movie-card {
     background-color: white;
     border-radius: 10px;
     overflow: hidden;
@@ -116,36 +116,41 @@ header p {
     flex-direction: column;
 }
 
-.country-card:hover {
+.movie-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-.country-flag {
+.movie-poster {
     width: 100%;
-    height: 160px;
+    height: 400px;
     object-fit: cover;
-    border-bottom: 3px solid #3498db;
+    border-bottom: 3px solid #e23636;
 }
 
-.country-info {
+.movie-info {
     padding: 20px;
     flex: 1;
 }
 
-.country-info h2 {
-    font-size: 1.5rem;
+.movie-info h2 {
+    font-size: 1.4rem;
     margin-bottom: 10px;
-    color: #2c3e50;
+    color: #222;
 }
 
-.country-info p {
+.movie-info p {
     margin-bottom: 8px;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
-.country-info strong {
-    color: #3498db;
+.movie-info strong {
+    color: #e23636;
+}
+
+.plot {
+    font-style: italic;
+    color: #555;
 }
 
 /* Responsive aanpassingen */
@@ -159,12 +164,12 @@ header p {
         align-items: center;
     }
 
-    #search, #region-filter, #sort-population {
+    #search, #genre-filter, #sort-year {
         width: 100%;
         max-width: 300px;
     }
 
-    .countries-grid {
-        grid-template-columns: 1fr;
+    .movie-poster {
+        height: 300px;
     }
 }
