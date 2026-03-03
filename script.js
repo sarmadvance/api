@@ -1,6 +1,6 @@
 // Globale variabelen
 let allMovies = [];               // Alle films van de API
-let filteredMovies = [];          // Gefilterde (en gesorteerde) films voor weergave
+let filteredMovies = [];          // Gefilterde films voor weergave
 let currentSortOrder = 'asc';     // 'asc' = oplopend (oud naar nieuw), 'desc' = aflopend
 
 // DOM-elementen
@@ -11,8 +11,11 @@ const moviesGrid = document.getElementById('movies-grid');
 const loadingDiv = document.getElementById('loading');
 const errorDiv = document.getElementById('error');
 
-// Laad alle films bij het starten
-window.addEventListener('load', fetchAllMovies);
+// Vervang dit met je eigen OMDb API-sleutel
+const API_KEY = '29685db1';  // <-- Vul hier je sleutel in
+
+// Laad Marvel-films bij het starten
+window.addEventListener('load', fetchMarvelMovies);
 
 // Event listeners voor interactie
 searchInput.addEventListener('input', applyFilters);
@@ -20,32 +23,48 @@ genreFilter.addEventListener('change', applyFilters);
 sortButton.addEventListener('click', toggleSort);
 
 /**
- * Haalt alle films op van de Marvel Film API
+ * Haalt alle Marvel-films op via OMDb API
  */
-async function fetchAllMovies() {
+async function fetchMarvelMovies() {
     showLoading(true);
     hideError();
 
     try {
-        const response = await fetch('https://marvel-film-api.fly.dev/api/movies?limit=50', {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (compatible; MarvelApp/1.0)'
-            }
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP-fout! Status: ${response.status} - ${errorText || 'Geen details'}`);
+        // Eerst zoeken we naar alle films met "Marvel" in de titel
+        const searchResponse = await fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=Marvel&type=movie`);
+        
+        if (!searchResponse.ok) {
+            throw new Error(`HTTP-fout! Status: ${searchResponse.status}`);
         }
 
-        // De API retourneert een array van films
-        const data = await response.json();
-        allMovies = data;  // data is direct de array
+        const searchData = await searchResponse.json();
+
+        if (searchData.Response === 'False') {
+            throw new Error(searchData.Error || 'Geen films gevonden');
+        }
+
+        // searchData.Search bevat een lijst van films met basisgegevens (titel, jaar, imdbID, poster)
+        const basicMovies = searchData.Search || [];
+
+        // Voor elke film halen we gedetailleerde info op via de imdbID
+        const detailPromises = basicMovies.map(async (movie) => {
+            const detailResponse = await fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&i=${movie.imdbID}&plot=short`);
+            const detailData = await detailResponse.json();
+            return detailData;
+        });
+
+        allMovies = await Promise.all(detailPromises);
+
+        // Filter alleen films die echt Marvel zijn (soms komen er valse positieven)
+        allMovies = allMovies.filter(movie => 
+            movie.Title && movie.Title.toLowerCase().includes('marvel') || 
+            (movie.Genre && movie.Genre.includes('Marvel'))
+        );
 
         // Vul de genre-filter met unieke genres
         populateGenreFilter(allMovies);
 
-        // Toon alle films (standaard weergave)
+        // Toon alle films
         filteredMovies = [...allMovies];
         renderMovies(filteredMovies);
     } catch (error) {
@@ -62,8 +81,8 @@ async function fetchAllMovies() {
 function populateGenreFilter(movies) {
     // Verzamel alle genres (splits bij komma en trim spaties)
     const allGenres = movies.flatMap(movie => {
-        if (movie.genre) {
-            return movie.genre.split(',').map(g => g.trim());
+        if (movie.Genre) {
+            return movie.Genre.split(',').map(g => g.trim());
         }
         return [];
     });
@@ -71,10 +90,10 @@ function populateGenreFilter(movies) {
     // Unieke genres en sorteren
     const uniqueGenres = [...new Set(allGenres)].sort();
 
-    // Reset de dropdown (behoud de eerste 'Alle genres' optie)
+    // Reset de dropdown
     genreFilter.innerHTML = '<option value="">Alle genres</option>';
 
-    // Voeg een optie toe voor elk uniek genre
+    // Voeg opties toe
     uniqueGenres.forEach(genre => {
         const option = document.createElement('option');
         option.value = genre;
@@ -84,67 +103,60 @@ function populateGenreFilter(movies) {
 }
 
 /**
- * Past zoek- en filtercriteria toe en toont de resultaten
+ * Past zoek- en filtercriteria toe
  */
 function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     const selectedGenre = genreFilter.value;
 
-    // Eerst filteren op genre (als geselecteerd)
+    // Filter op genre
     let filtered = allMovies.filter(movie => {
         if (selectedGenre) {
-            // Controleer of het geselecteerde genre voorkomt in de genre-string van de film
-            const movieGenres = movie.genre ? movie.genre.split(',').map(g => g.trim()) : [];
+            const movieGenres = movie.Genre ? movie.Genre.split(',').map(g => g.trim()) : [];
             return movieGenres.includes(selectedGenre);
         }
         return true;
     });
 
-    // Vervolgens filteren op zoekterm (titel)
+    // Filter op zoekterm (titel)
     if (searchTerm !== '') {
         filtered = filtered.filter(movie =>
-            movie.title.toLowerCase().includes(searchTerm)
+            movie.Title.toLowerCase().includes(searchTerm)
         );
     }
 
-    // Sorteer de gefilterde lijst op jaar (huidige sorteervolgorde)
+    // Sorteer op jaar
     sortMovies(filtered, currentSortOrder);
 
-    // Werk de weergave bij
     filteredMovies = filtered;
     renderMovies(filteredMovies);
 }
 
 /**
- * Sorteert de films op jaar (oplopend of aflopend)
+ * Sorteert films op jaar (oplopend/aflopend)
  */
 function sortMovies(movies, order) {
     movies.sort((a, b) => {
-        const yearA = a.year || 0;
-        const yearB = b.year || 0;
+        const yearA = parseInt(a.Year) || 0;
+        const yearB = parseInt(b.Year) || 0;
         return order === 'asc' ? yearA - yearB : yearB - yearA;
     });
 }
 
 /**
- * Wisselt de sorteervolgorde om en werkt de weergave bij
+ * Wisselt sorteervolgorde
  */
 function toggleSort() {
-    // Wijzig sorteervolgorde
     currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
-
-    // Pas het knoplabel aan
     sortButton.textContent = currentSortOrder === 'asc'
-        ? 'Sorteer op jaar ⬇️'   // ⬇️ = oud naar nieuw (oplopend)
-        : 'Sorteer op jaar ⬆️';  // ⬆️ = nieuw naar oud (aflopend)
-
-    // Pas sortering toe op de huidige gefilterde lijst en render opnieuw
+        ? 'Sorteer op jaar ⬇️'
+        : 'Sorteer op jaar ⬆️';
     sortMovies(filteredMovies, currentSortOrder);
     renderMovies(filteredMovies);
 }
 
 /**
- * Toont de films in het grid (HTML genereren)
+ * Toont films in het grid
  */
 function renderMovies(movies) {
     if (movies.length === 0) {
@@ -152,16 +164,14 @@ function renderMovies(movies) {
         return;
     }
 
-    // Bouw HTML voor alle kaarten
     const html = movies.map(movie => {
-        // Veilige uitlezing van eigenschappen
-        const title = movie.title || 'Onbekende titel';
-        const year = movie.year || 'Onbekend';
-        const director = movie.director || 'Onbekend';
-        const actors = movie.actors || 'Onbekend';
-        const genre = movie.genre || 'Onbekend';
-        const plot = movie.plot ? (movie.plot.length > 100 ? movie.plot.substring(0, 100) + '...' : movie.plot) : 'Geen beschrijving beschikbaar.';
-        const poster = movie.poster || 'https://via.placeholder.com/300x450?text=Geen+poster';
+        const title = movie.Title || 'Onbekende titel';
+        const year = movie.Year || 'Onbekend';
+        const director = movie.Director || 'Onbekend';
+        const actors = movie.Actors || 'Onbekend';
+        const genre = movie.Genre || 'Onbekend';
+        const plot = movie.Plot ? (movie.Plot.length > 100 ? movie.Plot.substring(0, 100) + '...' : movie.Plot) : 'Geen beschrijving.';
+        const poster = movie.Poster && movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450?text=Geen+poster';
 
         return `
             <div class="movie-card">
@@ -180,26 +190,17 @@ function renderMovies(movies) {
     moviesGrid.innerHTML = html;
 }
 
-/**
- * Toont of verbergt de laadindicator
- */
 function showLoading(show) {
     loadingDiv.style.display = show ? 'block' : 'none';
-    if (show) moviesGrid.innerHTML = ''; // Maak grid leeg tijdens laden
+    if (show) moviesGrid.innerHTML = '';
 }
 
-/**
- * Toont een foutmelding
- */
 function showError(message) {
     errorDiv.textContent = message;
     errorDiv.style.display = 'block';
-    moviesGrid.innerHTML = ''; // Verberg eventuele oude resultaten
+    moviesGrid.innerHTML = '';
 }
 
-/**
- * Verbergt de foutmelding
- */
 function hideError() {
     errorDiv.style.display = 'none';
 }
