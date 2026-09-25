@@ -45,7 +45,3 @@ Er is geen server of build-stap nodig – alles draait in de browser.
 - [ ] Landen kunnen vergelijken (twee selecteren).
 - [ ] Favorieten opslaan in localStorage.
 - [ ] Meer sorteeropties (bijv. alfabetisch, oppervlakte).
-
-## Credits
-
-Gemaakt door [Jouw Naam] en [Teamgenoot] voor de opdracht "Werken met API en JSON".
